@@ -1,7 +1,20 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../../../.env') });
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5';
+const OPENROUTER_MODEL = 'anthropic/claude-3-5-sonnet-20241022';
+
+function parseAIJson(content) {
+  try { return JSON.parse(content); } catch {}
+  try {
+    const stripped = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    return JSON.parse(stripped);
+  } catch {}
+  try {
+    const match = content.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+  } catch {}
+  return null;
+}
 
 async function callAI(systemPrompt, userPrompt) {
   if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === 'your-openrouter-api-key-here') {
@@ -45,16 +58,23 @@ async function callAI(systemPrompt, userPrompt) {
 
     const data = await response.json();
     const content = data.choices[0].message.content;
-
-    try {
-      return { error: false, result: JSON.parse(content), model: OPENROUTER_MODEL };
-    } catch {
-      return { error: false, result: { summary: content, raw: true }, model: OPENROUTER_MODEL };
-    }
+    const parsed = parseAIJson(content);
+    return { error: false, result: parsed || { summary: content, raw: true }, model: OPENROUTER_MODEL };
   } catch (err) {
     console.error('AI Service Error:', err.message);
     return { error: true, message: err.message };
   }
 }
 
-module.exports = { callAI };
+async function persistAIResult(pool, userId, endpoint, inputData, result) {
+  try {
+    await pool.query(
+      'INSERT INTO ai_results (user_id, endpoint, input_data, result) VALUES ($1, $2, $3, $4)',
+      [userId, endpoint, JSON.stringify(inputData), JSON.stringify(result)]
+    );
+  } catch (e) {
+    console.error('Failed to persist AI result:', e.message);
+  }
+}
+
+module.exports = { callAI, parseAIJson, persistAIResult };

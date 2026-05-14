@@ -4,24 +4,36 @@ const pool = require('./db');
 async function seed() {
   console.log('🌱 Seeding database...\n');
 
-  // Drop tables in reverse dependency order
+  // Only clear data for fresh seed, keep structure
   await pool.query(`
-    DROP TABLE IF EXISTS sales CASCADE;
-    DROP TABLE IF EXISTS cash_records CASCADE;
-    DROP TABLE IF EXISTS alerts CASCADE;
-    DROP TABLE IF EXISTS maintenance CASCADE;
-    DROP TABLE IF EXISTS pricing_rules CASCADE;
-    DROP TABLE IF EXISTS planograms CASCADE;
-    DROP TABLE IF EXISTS inventory CASCADE;
-    DROP TABLE IF EXISTS routes CASCADE;
-    DROP TABLE IF EXISTS products CASCADE;
-    DROP TABLE IF EXISTS machines CASCADE;
-    DROP TABLE IF EXISTS users CASCADE;
-  `);
+    TRUNCATE TABLE sales, cash_records, alerts, maintenance, pricing_rules, planograms,
+      inventory, routes, products, machines, users RESTART IDENTITY CASCADE;
+  `).catch(() => console.log('Tables may not exist yet, creating...'));
 
   // Create tables
   await pool.query(`
-    CREATE TABLE users (
+    CREATE TABLE IF NOT EXISTS ai_results (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER,
+      endpoint VARCHAR(100),
+      input_data JSONB,
+      result JSONB,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS maintenance_predictions (
+      id SERIAL PRIMARY KEY,
+      machine_id INTEGER REFERENCES machines(id) ON DELETE CASCADE,
+      failure_probability FLOAT,
+      components_at_risk JSONB,
+      recommended_action TEXT,
+      urgency VARCHAR(50),
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `).catch(() => {});
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       email VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
@@ -31,7 +43,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE machines (
+    CREATE TABLE IF NOT EXISTS machines (
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       location VARCHAR(500) NOT NULL,
@@ -45,7 +57,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE products (
+    CREATE TABLE IF NOT EXISTS products (
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       category VARCHAR(100) NOT NULL,
@@ -57,7 +69,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE inventory (
+    CREATE TABLE IF NOT EXISTS inventory (
       id SERIAL PRIMARY KEY,
       machine_id INTEGER REFERENCES machines(id) ON DELETE CASCADE,
       product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
@@ -69,7 +81,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE planograms (
+    CREATE TABLE IF NOT EXISTS planograms (
       id SERIAL PRIMARY KEY,
       machine_id INTEGER REFERENCES machines(id) ON DELETE CASCADE,
       name VARCHAR(255) NOT NULL,
@@ -79,7 +91,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE pricing_rules (
+    CREATE TABLE IF NOT EXISTS pricing_rules (
       id SERIAL PRIMARY KEY,
       product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
       machine_id INTEGER REFERENCES machines(id) ON DELETE SET NULL,
@@ -92,7 +104,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE routes (
+    CREATE TABLE IF NOT EXISTS routes (
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       driver VARCHAR(255),
@@ -105,7 +117,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE cash_records (
+    CREATE TABLE IF NOT EXISTS cash_records (
       id SERIAL PRIMARY KEY,
       machine_id INTEGER REFERENCES machines(id) ON DELETE CASCADE,
       record_date DATE DEFAULT CURRENT_DATE,
@@ -118,7 +130,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE sales (
+    CREATE TABLE IF NOT EXISTS sales (
       id SERIAL PRIMARY KEY,
       machine_id INTEGER REFERENCES machines(id) ON DELETE CASCADE,
       product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
@@ -129,7 +141,7 @@ async function seed() {
       created_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE alerts (
+    CREATE TABLE IF NOT EXISTS alerts (
       id SERIAL PRIMARY KEY,
       machine_id INTEGER REFERENCES machines(id) ON DELETE CASCADE,
       type VARCHAR(100) NOT NULL,
@@ -140,7 +152,7 @@ async function seed() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
-    CREATE TABLE maintenance (
+    CREATE TABLE IF NOT EXISTS maintenance (
       id SERIAL PRIMARY KEY,
       machine_id INTEGER REFERENCES machines(id) ON DELETE CASCADE,
       type VARCHAR(100) NOT NULL,

@@ -73,4 +73,26 @@ export const api = {
   aiRoutes: () => fetchApi('/routes/ai/optimize', { method: 'POST', body: '{}' }),
   aiCash: () => fetchApi('/cash/ai/analyze', { method: 'POST', body: '{}' }),
   aiSales: () => fetchApi('/sales/ai/analyze', { method: 'POST', body: '{}' }),
+  aiPredictMaintenance: (machineId) => fetchApi(`/maintenance/${machineId}/ai-predict`, { method: 'POST', body: '{}' }),
+  aiPlanogramPerformance: (machineId) => fetchApi(`/planograms/${machineId}/ai-performance`, { method: 'POST', body: '{}' }).catch(() => fetchApi('/planograms/ai/optimize', { method: 'POST', body: JSON.stringify({ machine_id: machineId }) })),
+
+  // Telemetry
+  telemetryIngest: (payload) => fetchApi('/telemetry/ingest', { method: 'POST', body: JSON.stringify(payload) }),
+  telemetrySummary: () => fetchApi('/telemetry/summary'),
+
+  // Cashless reconciliation (uses cash route + AI)
+  cashlessReconcile: (payload) => fetchApi('/cash/reconcile', { method: 'POST', body: JSON.stringify(payload) }).catch(() => fetchApi('/cash/ai/analyze', { method: 'POST', body: '{}' })),
+
+  // New AI endpoints (audit pass)
+  aiDemandForecast: (payload) => fetchApi('/ai/demand-forecast', { method: 'POST', body: JSON.stringify(payload || {}) }),
+  aiDynamicPricing: (payload) => fetchApi('/ai/dynamic-pricing', { method: 'POST', body: JSON.stringify(payload || {}) }),
+  aiPredictiveMaintenanceV2: (payload) => fetchApi('/ai/predictive-maintenance', { method: 'POST', body: JSON.stringify(payload || {}) }),
+  aiRouteOptimization: (payload) => fetchApi('/ai/route-optimization', { method: 'POST', body: JSON.stringify(payload || {}) }),
+
+  // Apply pass 5
+  aiAnomalyDetection: (payload) => fetchApi('/ai/anomaly-detection', { method: 'POST', body: JSON.stringify(payload || {}) }),
+  aiPaymentSquare: (payload) => fetchApi('/ai/payment-square', { method: 'POST', body: JSON.stringify(payload || {}) }),
+  aiPaymentNcr: (payload) => fetchApi('/ai/payment-ncr', { method: 'POST', body: JSON.stringify(payload || {}) }),
+  aiSupplierOrder: (payload) => fetchApi('/ai/supplier-order', { method: 'POST', body: JSON.stringify(payload || {}) }),
+  aiLocationTracking: (payload) => fetchApi('/ai/location-tracking', { method: 'POST', body: JSON.stringify(payload || {}) }),
 };

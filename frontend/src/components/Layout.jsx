@@ -14,6 +14,12 @@ const navItems = [
   { path: '/sales', label: 'Sales Analytics', icon: '📈', ai: true },
   { path: '/alerts', label: 'Alerts', icon: '🔔' },
   { path: '/maintenance', label: 'Maintenance', icon: '🔧' },
+  { path: '/ai/demand-forecast', label: 'Demand Forecast', icon: '📊', ai: true },
+  { path: '/ai/dynamic-pricing', label: 'Pricing v2', icon: '💸', ai: true },
+  { path: '/ai/predictive-maintenance', label: 'Predict Maint v2', icon: '🛠️', ai: true },
+  { path: '/ai/route-optimization', label: 'AI Route Optimizer', icon: '🧭', ai: true },
+  { path: '/ai/anomaly-detection', label: 'Anomaly Detection', icon: '🚨', ai: true },
+  { path: '/ai/integrations', label: 'Integrations', icon: '🔌' },
 ];
 
 export default function Layout({ onLogout }) {
