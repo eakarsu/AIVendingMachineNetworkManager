@@ -35,6 +35,7 @@ app.use('/api/alerts', require('./routes/alerts'));
 app.use('/api/maintenance', require('./routes/maintenance'));
 app.use('/api/telemetry', require('./routes/telemetry'));
 app.use('/api/ai', require('./routes/ai'));
+app.use('/api/custom-views', require('./routes/customViews'));
 
 // Health check
 app.get('/api/health', (req, res) => {

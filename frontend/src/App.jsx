@@ -20,6 +20,7 @@ import PredictiveMaintenanceV2 from './pages/PredictiveMaintenanceV2';
 import RouteOptimization from './pages/RouteOptimization';
 import AnomalyDetection from './pages/AnomalyDetection';
 import Integrations from './pages/Integrations';
+import CustomViewsPage from './pages/CustomViewsPage';
 // === Batch 08 Gaps & Frontend Mounts ===
 import CfAiDemandForecasterByMachineLocationTime from './pages/CfAiDemandForecasterByMachineLocationTime'
 import CfRouteOptimizerMinimizingCollectionRestockingDistance from './pages/CfRouteOptimizerMinimizingCollectionRestockingDistance'
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="ai/route-optimization" element={<RouteOptimization />} />
           <Route path="ai/anomaly-detection" element={<AnomalyDetection />} />
           <Route path="ai/integrations" element={<Integrations />} />
+          <Route path="custom-views" element={<CustomViewsPage />} />
         </Route>
       {/* // === Batch 08 Gaps & Frontend Mounts === */}
       <Route path="/cf-ai-demand-forecaster-by-machine-location-time-for" element={<ProtectedRoute><CfAiDemandForecasterByMachineLocationTime /></ProtectedRoute>} />

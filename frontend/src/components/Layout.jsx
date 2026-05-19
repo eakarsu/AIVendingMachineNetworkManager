@@ -20,6 +20,7 @@ const navItems = [
   { path: '/ai/route-optimization', label: 'AI Route Optimizer', icon: '🧭', ai: true },
   { path: '/ai/anomaly-detection', label: 'Anomaly Detection', icon: '🚨', ai: true },
   { path: '/ai/integrations', label: 'Integrations', icon: '🔌' },
+  { path: '/custom-views', label: 'Fleet Analytics', icon: '🗺️' },
 ];
 
 export default function Layout({ onLogout }) {
