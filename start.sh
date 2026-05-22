@@ -25,7 +25,7 @@ echo "╚═══════════════════════�
 echo -e "${NC}"
 
 # ---- Clean used ports ----
-echo -e "${YELLOW}[1/6] Cleaning up ports 3000 and 3001...${NC}"
+echo -e "${YELLOW}[1/6] Cleaning up ports 4800 and 4801...${NC}"
 kill_port() {
   local port=$1
   local pids=$(lsof -ti :$port 2>/dev/null || true)
@@ -37,8 +37,8 @@ kill_port() {
     echo -e "  ${GREEN}Port $port is free${NC}"
   fi
 }
-kill_port 3000
-kill_port 3001
+kill_port 4800
+kill_port 4801
 
 # ---- Check PostgreSQL ----
 echo -e "\n${YELLOW}[2/6] Checking PostgreSQL...${NC}"
@@ -92,16 +92,16 @@ echo -e "\n${YELLOW}[6/6] Starting services with hot reload...${NC}"
 cd "$PROJECT_DIR/backend"
 npx nodemon src/server.js &
 BACKEND_PID=$!
-echo -e "  ${GREEN}Backend starting on http://localhost:${BACKEND_PORT:-3001} (PID: $BACKEND_PID)${NC}"
+echo -e "  ${GREEN}Backend starting on http://localhost:${BACKEND_PORT:-4801} (PID: $BACKEND_PID)${NC}"
 
 # Wait for backend
 sleep 2
 
 # Start frontend with Vite (hot reload built-in)
 cd "$PROJECT_DIR/frontend"
-npx vite --port ${FRONTEND_PORT:-3000} &
+npx vite --port ${FRONTEND_PORT:-4800} &
 FRONTEND_PID=$!
-echo -e "  ${GREEN}Frontend starting on http://localhost:${FRONTEND_PORT:-3000} (PID: $FRONTEND_PID)${NC}"
+echo -e "  ${GREEN}Frontend starting on http://localhost:${FRONTEND_PORT:-4800} (PID: $FRONTEND_PID)${NC}"
 
 echo -e "\n${PURPLE}╔══════════════════════════════════════════════╗${NC}"
 echo -e "${PURPLE}║${NC}  ${GREEN}Application is running!${NC}                      ${PURPLE}║${NC}"

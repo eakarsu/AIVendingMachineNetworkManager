@@ -21,6 +21,9 @@ import RouteOptimization from './pages/RouteOptimization';
 import AnomalyDetection from './pages/AnomalyDetection';
 import Integrations from './pages/Integrations';
 import CustomViewsPage from './pages/CustomViewsPage';
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
 // === Batch 08 Gaps & Frontend Mounts ===
 import CfAiDemandForecasterByMachineLocationTime from './pages/CfAiDemandForecasterByMachineLocationTime'
 import CfRouteOptimizerMinimizingCollectionRestockingDistance from './pages/CfRouteOptimizerMinimizingCollectionRestockingDistance'
@@ -50,6 +53,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/codex/custom-viz" element={<ProtectedRoute><CodexCustomVizFeature /></ProtectedRoute>} />
+        <Route path="/codex/operations" element={<ProtectedRoute><CodexOperationsFeature /></ProtectedRoute>} />
+
         <Route path="/login" element={<Login onLogin={() => setAuthState(true)} />} />
         <Route path="/" element={<ProtectedRoute><Layout onLogout={() => setAuthState(false)} /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />

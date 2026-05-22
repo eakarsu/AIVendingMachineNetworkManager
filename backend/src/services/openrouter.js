@@ -1,7 +1,7 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../../../.env') });
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_MODEL = 'anthropic/claude-3-5-sonnet-20241022';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet-20241022';
 
 function parseAIJson(content) {
   try { return JSON.parse(content); } catch {}

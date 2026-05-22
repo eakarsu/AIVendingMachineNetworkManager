@@ -15,10 +15,10 @@ export default defineConfig({
     },
   },
   server: {
-    port: 4800,
+    port: parseInt(process.env.FRONTEND_PORT) || 4800,
     proxy: {
       '/api': {
-        target: 'http://localhost:4801',
+        target: process.env.BACKEND_URL || 'http://localhost:4801',
         changeOrigin: true,
       },
     },
