@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: require('path').join(__dirname, '../../../.env') });
-
-const JWT_SECRET = process.env.JWT_SECRET || 'default-secret';
+const { jwtSecret: JWT_SECRET } = require('../config/security');
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -22,7 +20,7 @@ function authenticateToken(req, res, next) {
 
 function generateToken(user) {
   return jwt.sign(
-    { id: user.id, email: user.email, name: user.name, role: user.role },
+    { id: user.id, email: user.email, name: user.name, role: user.role, tenantId: user.tenant_id, subjectId: String(user.id) },
     JWT_SECRET,
     { expiresIn: '24h' }
   );

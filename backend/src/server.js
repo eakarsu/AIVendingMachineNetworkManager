@@ -4,12 +4,15 @@ const helmet = require('helmet');
 require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3001;
+const PORT = Number(process.env.BACKEND_PORT);
+if (!Number.isInteger(PORT) || PORT < 1) throw new Error('BACKEND_PORT is required');
+const { authenticateToken } = require('./middleware/auth');
 
 // Security middleware
 app.use(helmet());
+if (!process.env.CLIENT_URL) throw new Error('CLIENT_URL is required');
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: process.env.CLIENT_URL,
   credentials: true
 }));
 app.use(express.json());
@@ -20,8 +23,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api', authenticateToken);
+app.use('/api/fulfillment-workflow', require('./routes/fulfillmentWorkflow'));
+app.use(/^\/api\/(?:ai(?:\/|$)|gap-|integrations?(?:\/|$)|webhooks?(?:\/|$)|demand-forecaster|route-optimizer|dynamic-pricing|predictive-maintenance|theft-detection|cashless-integration)/, (_req,res)=>res.status(503).json({error:'generated/direct-provider endpoints are quarantined; use fulfillment-workflow deliveries'}));
+// Routes
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/machines', require('./routes/machines'));
 app.use('/api/products', require('./routes/products'));
@@ -36,11 +43,6 @@ app.use('/api/maintenance', require('./routes/maintenance'));
 app.use('/api/telemetry', require('./routes/telemetry'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/custom-views', require('./routes/customViews'));
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 app.use('/api/demand-forecaster', require('./routes/demandForecaster')); app.use('/api/route-optimizer', require('./routes/routeOptimizer')); app.use('/api/dynamic-pricing', require('./routes/dynamicPricing')); app.use('/api/predictive-maintenance', require('./routes/predictiveMaintenance')); app.use('/api/theft-detection', require('./routes/theftDetection')); app.use('/api/cashless-integration', require('./routes/cashlessIntegration'));
 
@@ -57,7 +59,4 @@ app.use('/api/gap-no-real-time-gps-location-tracking-for-the-fleet', require('./
 app.use('/api/gap-no-notifications-subsystem-alerts-only', require('./routes/gapNoNotificationsSubsystemAlertsOnly'));
 app.use('/api/gap-no-multi-tenant-operator-separation', require('./routes/gapNoMultiTenantOperatorSeparation'));
 
-app.listen(PORT, () => {
-  console.log(`\nVending Network API running on http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health\n`);
-});
+async function start(){try{const ready=await require('./db').query("SELECT to_regclass('public.fulfillment_orders') AS workflow, to_regclass('public.fulfillment_audit') AS audit");if(!ready.rows[0].workflow||!ready.rows[0].audit)throw new Error('database migrations are pending; run npm run migrate');app.listen(PORT,()=>console.log(`Vending Network API running on http://localhost:${PORT}`));}catch(e){console.error('[startup] schema readiness failed:',e.message);process.exit(1);}}start();

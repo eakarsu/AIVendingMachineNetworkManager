@@ -1,7 +1,12 @@
 const bcrypt = require('bcryptjs');
 const pool = require('./db');
 
+if(process.env.NODE_ENV==='production'||process.env.ALLOW_DESTRUCTIVE_DEMO_SEED!=='true'){console.error('Refusing destructive demo seed outside an explicitly enabled non-production environment.');process.exit(2);}
 async function seed() {
+  const adminEmail = (process.env.SEED_ADMIN_EMAIL || '').trim().toLowerCase();
+  const demoPassword = process.env.SEED_DEMO_PASSWORD || '';
+  const tenantId = (process.env.TENANT_ID || '').trim();
+  if (!adminEmail || !tenantId || demoPassword.length < 12) throw new Error('Seed admin email, tenant, and a 12+ character password are required');
   console.log('🌱 Seeding database...\n');
 
   // Only clear data for fresh seed, keep structure
@@ -39,6 +44,7 @@ async function seed() {
       password VARCHAR(255) NOT NULL,
       name VARCHAR(255) NOT NULL,
       role VARCHAR(50) DEFAULT 'operator',
+      tenant_id TEXT,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     );
@@ -170,13 +176,13 @@ async function seed() {
   console.log('✅ Tables created');
 
   // Seed Users
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const hashedPassword = await bcrypt.hash(demoPassword, 12);
   await pool.query(`
-    INSERT INTO users (email, password, name, role) VALUES
-    ('admin@vendingnet.com', $1, 'Admin User', 'admin'),
-    ('operator@vendingnet.com', $1, 'John Operator', 'operator'),
-    ('manager@vendingnet.com', $1, 'Sarah Manager', 'manager')
-  `, [hashedPassword]);
+    INSERT INTO users (email, password, name, role, tenant_id) VALUES
+    ($1, $2, 'Admin User', 'admin', $3),
+    ('operator@vendingnet.invalid', $2, 'John Operator', 'operator', $3),
+    ('manager@vendingnet.invalid', $2, 'Sarah Manager', 'manager', $3)
+  `, [adminEmail, hashedPassword, tenantId]);
   console.log('✅ Users seeded');
 
   // Seed Machines (18 machines)

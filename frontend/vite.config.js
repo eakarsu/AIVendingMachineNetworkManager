@@ -15,12 +15,12 @@ export default defineConfig({
     },
   },
   server: {
-    port: parseInt(process.env.FRONTEND_PORT) || 4800,
-    proxy: {
+    strictPort: true,
+    ...(process.env.BACKEND_URL ? { proxy: {
       '/api': {
-        target: process.env.BACKEND_URL || 'http://localhost:4801',
+        target: process.env.BACKEND_URL,
         changeOrigin: true,
       },
-    },
+    } } : {}),
   },
 });
