@@ -25,8 +25,8 @@ export default function Login({ onLogin }) {
   };
 
   const autofill = () => {
-    setEmail('admin@vendingnet.com');
-    setPassword('admin123');
+    setEmail(import.meta.env.VITE_DEMO_EMAIL || '');
+    setPassword(import.meta.env.VITE_DEMO_PASSWORD || '');
   };
 
   return (

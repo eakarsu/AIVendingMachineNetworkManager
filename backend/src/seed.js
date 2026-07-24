@@ -484,7 +484,7 @@ async function seed() {
   console.log('\n🎉 Database seeding complete!\n');
   console.log('Login credentials:');
   console.log('  Email: admin@vendingnet.com');
-  console.log('  Password: admin123\n');
+  console.log('Demo login users provisioned from the local environment.');
 
   await pool.end();
   process.exit(0);
