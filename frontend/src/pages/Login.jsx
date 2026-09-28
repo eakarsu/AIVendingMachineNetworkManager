@@ -90,7 +90,7 @@ export default function Login({ onLogin }) {
               onClick={autofill}
               className="w-full py-2.5 bg-gray-700/30 hover:bg-gray-700/50 border border-gray-600/30 text-gray-400 hover:text-gray-300 rounded-lg text-xs font-medium transition-all"
             >
-              Quick Login (Demo Credentials)
+              Auto Fill Demo Credentials
             </button>
           </div>
         </div>
